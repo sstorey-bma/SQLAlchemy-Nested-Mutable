@@ -11,7 +11,7 @@ from sqlalchemy.orm import (
 )
 
 from sqlalchemy_nested_mutable import MutablePydanticBaseModel
-
+ 
 
 class Base(DeclarativeBase):
     pass

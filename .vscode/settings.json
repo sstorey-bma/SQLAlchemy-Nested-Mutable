@@ -1,6 +1,17 @@
 {
-    "cSpell.words": [
-        "autouse",
-        "sqltype"
-    ]
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "editor.formatOnSave": true,
+    "python.languageServer": "Pylance",
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "editor.formatOnPaste": true,
+    "editor.wordWrap": "on",
+    "editor.defaultFormatter": "ms-python.black-formatter",
 }

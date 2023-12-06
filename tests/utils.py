@@ -1,5 +1,6 @@
 import time
 
+import requests
 import psycopg2
 
 
@@ -22,3 +23,10 @@ def wait_pg_ready(dbinfo: dict, check_interval_base=0.1, back_rate=1.1, max_chec
             time.sleep(check_interval)
             check_interval *= back_rate
             continue
+
+
+def docker_status_code(container):
+    port = container.port_map["80/tcp"]
+    status = 200
+    response = requests.get(f"http://127.0.0.1:{port}/status/{status}")
+    assert response.status_code == status
