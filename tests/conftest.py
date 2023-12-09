@@ -44,15 +44,11 @@ def session(pg_dbinfo):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def cleanup(request):
+def cleanup(request, container):
     """
     Shutdown docker once we are finished / if it has been orphaned by error/hard stop.
     """
     def container_remove():
-        pass
-        #try:
-        #    container.remove(force=True)
-        #finally:
-        #    pass
-
+        container.remove(force=True)
+        
     request.addfinalizer(container_remove)
