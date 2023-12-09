@@ -1,6 +1,6 @@
 {
     "python.testing.pytestArgs": [
-        "."
+        "tests"
     ],
     "editor.formatOnSave": true,
     "python.languageServer": "Pylance",
@@ -12,6 +12,9 @@
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
     "editor.wordWrap": "on",
     "editor.defaultFormatter": "ms-python.black-formatter",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.fixAll": ["source.unusedImports"],
 }

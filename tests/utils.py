@@ -6,7 +6,7 @@ import psycopg2
 
 def wait_pg_ready(dbinfo: dict, check_interval_base=0.1, back_rate=1.1, max_check_times=50):
     check_interval = check_interval_base
-    for _ in range(max_check_times):
+    for i in range(max_check_times):
         try:
             with psycopg2.connect(
                     host=dbinfo['host'],
@@ -22,6 +22,7 @@ def wait_pg_ready(dbinfo: dict, check_interval_base=0.1, back_rate=1.1, max_chec
         except psycopg2.OperationalError:
             time.sleep(check_interval)
             check_interval *= back_rate
+            print('.' * i)
             continue
 
 

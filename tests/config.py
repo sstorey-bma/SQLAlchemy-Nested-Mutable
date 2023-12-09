@@ -17,7 +17,9 @@ class Settings:
     )
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "test")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "test")
-    POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "127.0.0.1")
+    POSTGRES_HOST: str = os.getenv(
+        "POSTGRES_HOST", "127.0.0.1"
+    )  # 172.17.0.1, host.docker.internal
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432/tcp")
     POSTGRES_FWD_PORT: str = os.getenv(
         "POSTGRES_FWD_PORT", "6000"

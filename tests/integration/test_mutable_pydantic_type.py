@@ -20,24 +20,26 @@ class Base(DeclarativeBase):
     pass
 
 
-class Addresses(MutablePydanticBaseModel):
+class Addresses(MutablePydanticBaseModel):  
     class AddressItem(pydantic.BaseModel):
         street: str
         city: str
-        area: Optional[str]
+        area: Optional[str] = None
 
-    preferred: Optional[AddressItem]
+    preferred: Optional[AddressItem] = None
     work: List[AddressItem] = []
     home: List[AddressItem] = []
-    updated_time: Optional[str]
+    updated_time: Optional[str] = None
 
+    def __init__(self, **data):
+        super().__init__(**data)
 
 class User(Base):
     __tablename__ = "user_account"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
-    addresses: Mapped[Addresses] = mapped_column(Addresses.as_mutable(), nullable=True)
+    addresses: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(), nullable=True) 
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -51,7 +53,8 @@ def _with_tables(session):
 
 
 def test_mutable_pydantic_type(session):
-    session.add(u := User(name="foo", addresses={"preferred": {"street": "bar", "city": "baz"}}))
+    u=User(name="foo", addresses={"preferred": {"street": "bar", "city": "baz", "area": None}})
+    session.add(u)
     session.commit()
 
     assert isinstance(u.addresses, MutablePydanticBaseModel)
@@ -68,15 +71,15 @@ def test_mutable_pydantic_type(session):
     # Deep change
     u.addresses.preferred.street = "bar2"
     session.commit()
-    assert u.addresses.preferred.dict(exclude_none=True) == {"street": "bar2", "city": "baz"}
+    assert u.addresses.preferred.model_dump(exclude_none=True) == {"street": "bar2", "city": "baz"}
 
     # Append item to list property
-    u.addresses.home.append(Addresses.AddressItem.parse_obj({"street": "bar3", "city": "baz"}))
+    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar3", "city": "baz"}))
     assert isinstance(u.addresses.home[0], TrackedPydanticBaseModel)
     session.commit()
-    assert u.addresses.home[0].dict(exclude_none=True) == {"street": "bar3", "city": "baz"}
+    assert u.addresses.home[0].model_dump(exclude_none=True) == {"street": "bar3", "city": "baz"}
 
     # Change item in list property
     u.addresses.home[0].street = "bar4"
     session.commit()
-    assert u.addresses.home[0].dict(exclude_none=True) == {"street": "bar4", "city": "baz"}
+    assert u.addresses.home[0].model_dump(exclude_none=True) == {"street": "bar4", "city": "baz"}
