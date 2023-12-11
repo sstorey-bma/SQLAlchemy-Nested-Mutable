@@ -1,0 +1,37 @@
+name: CI
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+    - name: Install Python Poetry
+      uses: abatilo/actions-poetry@v2.1.0
+      with:
+        poetry-version: 1.7.1
+    - name: View poetry version
+      run: poetry --version
+    - name: Setup a local virtual environment (if no poetry.toml file)
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
+    - uses: actions/cache@v3
+      name: Define a cache for the virtual environment
+      with:
+        path: ./.venv
+        key: venv-${{ hashFiles('poetry.lock') }}
+    - name: Install the project dependencies
+      run: poetry install
+    - name: Set path
+      run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+    - uses: jakebailey/pyright-action@v1
+      with:
+        pylance-version: latest-release
+    - name: Run the automated tests (for example)
+      run: poetry run pytest -v

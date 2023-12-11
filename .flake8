@@ -4,5 +4,11 @@ exclude =
     __pycache__,
 ignore =
     E501,
-    W503
-max-line-length = 100
+    W503,
+    E231,
+    E241
+per-file-ignores =
+    __init__.py:F401
+    ./src/tests/conftest.py:E402,F401,F403
+max-line-length = 119
+count = true

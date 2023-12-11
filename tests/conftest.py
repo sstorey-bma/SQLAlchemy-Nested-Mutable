@@ -1,7 +1,8 @@
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.orm import sessionmaker
 from pytest_docker_service import docker_container
+from sqlalchemy.orm import sessionmaker
+
 from tests.config import settings
 from tests.utils import wait_pg_ready
 
@@ -36,19 +37,6 @@ def pg_dbinfo(container):
 
 @pytest.fixture(scope="session")
 def session(pg_dbinfo):
-    engine = sa.create_engine(
-        "postgresql://{user}:{password}@{host}:{port}/{database}".format(**pg_dbinfo)
-    )
+    engine = sa.create_engine("postgresql://{user}:{password}@{host}:{port}/{database}".format(**pg_dbinfo))
     with sessionmaker(bind=engine)() as session:
         yield session
-
-
-@pytest.fixture(scope="session", autouse=True)
-def cleanup(request, container):
-    """
-    Shutdown docker once we are finished / if it has been orphaned by error/hard stop.
-    """
-    def container_remove():
-        container.remove(force=True)
-        
-    request.addfinalizer(container_remove)
