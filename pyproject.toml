@@ -9,6 +9,7 @@ yapf = "^0"
 black = "^23.3.0"
 ruff = "^0.0.267"
 pre-commit = "^3.6.0"
+pyright = "^1.1.339"
 
 [tool.tox]
 # See https://python-poetry.org/docs/master/faq/#usecase-3
@@ -32,9 +33,9 @@ readme = "README.md"
 description = "SQLAlchemy Nested Mutable Types."
 authors = ["Wonder <wonderbeyond@gmail.com>", "SS <sstorey@bma.bm>"]
 license = "MIT"
-repository = ""
-homepage = ""
-documentation = ""
+repository = "https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable"
+homepage = "https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable"
+documentation = "https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable"
 keywords = ["SQLAlchemy", "Nested", "Mutable", "Types", "JSON", "V2"]
 classifiers = [
     "Intended Audience :: Developers",
@@ -59,8 +60,6 @@ python-dotenv = "^1.0.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.pyright]
 
 [tool.poetry.dev-dependencies]
 black = "*"
@@ -105,5 +104,12 @@ markers = [
     "integration: marks as front/backend test (deselect with '-m \"not integration\"')",
     "unit: marks as unit test (deselect with '-m \"not unit\"')",
     ]
-pythonpath = "src"
+pythonpath = "sqlalchemy_nested_mutable"
 asyncio_mode = "auto"
+
+[tool.pyright]
+include = ["sqlalchemy_nested_mutable"]
+exclude = [
+    "**/__pycache__",
+]
+defineConstant = { DEBUG = true }
