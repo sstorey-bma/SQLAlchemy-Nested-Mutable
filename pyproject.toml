@@ -28,9 +28,9 @@ legacy_tox_ini = """
 
 [tool.poetry]
 name = "sqlalchemy-nested-mutable"
-version = "0.2.1"
+version = "0.1.0"
 readme = "README.md"
-description = "SQLAlchemy Nested Mutable Types."
+description = "SQLAlchemy Nested Mutable Types for v2"
 authors = ["Wonder <wonderbeyond@gmail.com>", "SS <sstorey@bma.bm>"]
 license = "MIT"
 repository = "https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable"
@@ -44,9 +44,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
 ]
-packages = [
-    { include = "sqlalchemy_nested_mutable" },
-]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -56,6 +53,7 @@ pydantic = "^2.5"
 typing-extensions = "^4.5.0"
 greenlet = "*"
 python-dotenv = "^1.0.0"
+glom = "^23.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -108,8 +106,13 @@ pythonpath = "sqlalchemy_nested_mutable"
 asyncio_mode = "auto"
 
 [tool.pyright]
-include = ["sqlalchemy_nested_mutable"]
+include = ["src"]
 exclude = [
     "**/__pycache__",
 ]
 defineConstant = { DEBUG = true }
+reportMissingImports= true
+reportMissingTypeStubs= true
+pythonVersion= "3.11"
+pythonPlatform= "Linux"
+stubPath = "src/stubs"

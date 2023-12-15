@@ -1,15 +1,21 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Iterable, TypeVar
-from typing_extensions import Self
+from typing import Iterable
+from typing import List
+from typing import TYPE_CHECKING
+from typing import TypeVar
 
 import sqlalchemy as sa
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.type_api import TypeEngine
+from typing_extensions import Self
 
-from .trackable import TrackedObject, TrackedList, TrackedDict, TrackedPydanticBaseModel
-from ._typing import _T
 from ._compat import pydantic
+from ._typing import _T
+from .trackable import TrackedDict
+from .trackable import TrackedList
+from .trackable import TrackedObject
+from .trackable import TrackedPydanticBaseModel
 
 _P = TypeVar("_P", bound='MutablePydanticBaseModel')
 
@@ -23,11 +29,12 @@ class MutableList(TrackedList, Mutable, List[_T]):
         aliases: Mapped[list[str]] = mapped_column(MutableList.as_mutable(ARRAY(String(128))))
         schedule: Mapped[list[list[str]]] = mapped_column(MutableList.as_mutable(ARRAY(sa.String(128), dimensions=2)))
     """
+
     @classmethod
     def coerce(cls, key, value):
         return value if isinstance(value, cls) else cls(value)
 
-    def __init__(self, __iterable: Iterable[_T]):
+    def __init__(self, __iterable: Iterable[_T] = []):
         super().__init__(TrackedObject.make_nested_trackable(__iterable, self))
 
 
@@ -41,14 +48,16 @@ class MutableDict(TrackedDict, Mutable):
 
 
 if pydantic is not None:
+
     class PydanticType(sa.types.TypeDecorator, TypeEngine[_P]):
         """
         Inspired by https://gist.github.com/imankulov/4051b7805ad737ace7d8de3d3f934d6b
         """
+
         cache_ok = True
         impl = sa.types.JSON
 
-        def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[_T] = None):
+        def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[_T] | None = None):
             super().__init__()
             self.pydantic_type = pydantic_type
             self.sqltype = sqltype
@@ -71,7 +80,7 @@ if pydantic is not None:
             return value.dict() if value else None
 
         def process_result_value(self, value, dialect) -> _P | None:
-            return None if value is None else self.pydantic_type.model_validate(value) 
+            return None if value is None else self.pydantic_type.model_validate(value)
 
     class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
         @classmethod
@@ -84,9 +93,11 @@ if pydantic is not None:
             return res
 
         @classmethod
-        def as_mutable(cls, sqltype: TypeEngine[_T] = None) -> TypeEngine[Self]:
+        def as_mutable(cls, sqltype: TypeEngine[_T] | None = None) -> TypeEngine[Self]:
             return super().as_mutable(PydanticType(cls, sqltype))
+
 elif not TYPE_CHECKING:
+
     class PydanticType:
         def __new__(cls, *a, **k):
             raise RuntimeError("PydanticType requires pydantic to be installed")

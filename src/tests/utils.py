@@ -1,7 +1,7 @@
 import time
 
-import requests
 import psycopg2
+import requests
 
 
 def wait_pg_ready(dbinfo: dict, check_interval_base=0.1, back_rate=1.1, max_check_times=50):
@@ -9,11 +9,11 @@ def wait_pg_ready(dbinfo: dict, check_interval_base=0.1, back_rate=1.1, max_chec
     for i in range(max_check_times):
         try:
             with psycopg2.connect(
-                    host=dbinfo['host'],
-                    port=dbinfo['port'],
-                    dbname=dbinfo['database'],
-                    user=dbinfo['user'],
-                    password=dbinfo['password'],
+                host=dbinfo['host'],
+                port=dbinfo['port'],
+                dbname=dbinfo['database'],
+                user=dbinfo['user'],
+                password=dbinfo['password'],
             ) as conn:
                 with conn.cursor() as cur:
                     cur.execute('SELECT 1;')

@@ -6,7 +6,8 @@ ignore =
     E501,
     W503,
     E231,
-    E241
+    E241,
+    E704
 per-file-ignores =
     __init__.py:F401
     ./src/tests/conftest.py:E402,F401,F403

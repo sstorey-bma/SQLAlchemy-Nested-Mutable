@@ -30,8 +30,5 @@ jobs:
       run: poetry install
     - name: Set path
       run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
-    - uses: jakebailey/pyright-action@v1
-      with:
-        pylance-version: latest-release
     - name: Run the automated tests (for example)
       run: poetry run pytest -v

@@ -1,17 +1,17 @@
-from typing import Optional, List
+from typing import List
+from typing import Optional
 
 import pytest
-from sqlalchemy.dialects.postgresql import JSON, JSONB
-from sqlalchemy_nested_mutable._compat import pydantic
 import sqlalchemy as sa
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
-    mapped_column,
-)
-
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Session
 from sqlalchemy_nested_mutable import MutablePydanticBaseModel
- 
+from sqlalchemy_nested_mutable._compat import pydantic
+
 
 class Base(DeclarativeBase):
     pass
@@ -33,12 +33,14 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
     addresses_default: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable())
-    addresses_json: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSON))
-    addresses_jsonb: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSONB))
+    addresses_json: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSON()))
+    addresses_jsonb: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSONB()))
 
 
 @pytest.fixture(scope="module", autouse=True)
-def _with_tables(session):
+def _with_tables(session: Session):
+    assert session is not None
+    assert session.bind is not None
     Base.metadata.create_all(session.bind)
     yield
     session.execute(sa.text("""
@@ -47,9 +49,16 @@ def _with_tables(session):
     session.commit()
 
 
-def test_mutable_pydantic_type(session):
-    session.add(User(name="foo"))
+def test_mutable_pydantic_type(session: Session):
+
+    # Arrange
+    u = User(name="foo")
+
+    # Act
+    session.add(u)
     session.commit()
+
+    # Assert
     assert session.scalar(sa.select(sa.func.pg_typeof(User.addresses_default))) == "jsonb"
     assert session.scalar(sa.select(sa.func.pg_typeof(User.addresses_json))) == "json"
     assert session.scalar(sa.select(sa.func.pg_typeof(User.addresses_jsonb))) == "jsonb"

@@ -11,7 +11,7 @@
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [5432] doesnt work as we want to map the port to new fwd address/port,
-    // Postgres SQL (used for testing)	
+    // Postgres SQL (used for testing)
     // "appPort": [ "5432:6000" ],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "pip3 install --user -r requirements.txt",
@@ -29,21 +29,31 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
+                "python.languageServer": "Pylance",
 				"python.linting.enabled": true,
 				"python.linting.pylintEnabled": false,
 				"python.defaultInterpreterPath": "/usr/local/bin/python",
         		"python.formatting.provider":"black",
 				"python.formatting.blackPath": "/usr/local/bin/black",
-				//"python.linting.flake8Path": "/usr/local/bin/flake8",
+				"python.linting.flake8Path": "/usr/local/bin/flake8",
 				"python.testing.pytestPath": "/usr/local/bin/pytest",
+                "python.testing.unittestEnabled": false,
 				"python.testing.pytestEnabled":true,
 				"editor.insertSpaces": true,
 				"editor.tabSize": 4,
 				"editor.detectIndentation":false,
-				"editor.formatOnSave":false,
-				"[python]": {
-					"editor.formatOnSave": true
-				},
+				"editor.formatOnSave": true,
+                "editor.formatOnPaste": true,
+                "editor.formatOnType": true,
+                "editor.wordWrap": "on",
+                "editor.tabCompletion": "on",
+                "editor.defaultFormatter": "ms-python.black-formatter",
+                "python.testing.autoTestDiscoverOnSaveEnabled": false,
+                "python.analysis.inlayHints.pytestParameters": true,
+                "python.analysis.autoImportCompletions": true,
+                "python.analysis.fixAll": ["source.unusedImports"],
+                "python.analysis.useLibraryCodeForTypes": true,
+                "python.analysis.typeCheckingMode": "basic",
                 "remote.autoForwardPorts": false
 			},
 			"extensions": [
