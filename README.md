@@ -28,7 +28,7 @@ However, it does not limit the mapped Python type to be `dict` or `list`.
 ## Installation
 
 ```shell
-pip install sqlalchemy-nested-mutable
+pip install sqlalchemyV2-nested-mutable
 ```
 
 ## Usage
@@ -41,7 +41,7 @@ from typing import Optional, List
 import pydantic
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, DeclarativeBase, Mapped, mapped_column
-from sqlalchemy_nested_mutable import MutablePydanticBaseModel
+from sqlalchemyV2_nested_mutable import MutablePydanticBaseModel
 
 
 class Base(DeclarativeBase):

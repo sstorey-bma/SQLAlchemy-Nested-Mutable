@@ -9,9 +9,9 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Session
-from sqlalchemy_nested_mutable import MutableList
-from sqlalchemy_nested_mutable import TrackedDict
-from sqlalchemy_nested_mutable import TrackedList
+from sqlalchemyv2_nested_mutable import MutableList
+from sqlalchemyv2_nested_mutable import TrackedDict
+from sqlalchemyv2_nested_mutable import TrackedList
 
 
 class Base(DeclarativeBase):

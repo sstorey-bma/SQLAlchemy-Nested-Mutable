@@ -10,6 +10,18 @@ black = "^23.3.0"
 ruff = "^0.0.267"
 pre-commit = "^3.6.0"
 pyright = "^1.1.339"
+keyring = "^24.3.0"
+artifacts-keyring = "^0.3.4"
+twine = "^4.0.2"
+
+[[tool.poetry.source]]
+name = "DSAI"
+url = "https://pkgs.dev.azure.com/BMA-DSAI/_packaging/DSAI/pypi/simple/"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "supplemental"
 
 [tool.tox]
 # See https://python-poetry.org/docs/master/faq/#usecase-3
@@ -27,10 +39,9 @@ legacy_tox_ini = """
 """
 
 [tool.poetry]
-name = "sqlalchemy-nested-mutable"
-version = "0.1.0"
+name = "sqlalchemyV2-nested-mutable"
 readme = "README.md"
-description = "SQLAlchemy Nested Mutable Types for v2"
+description = "SQLAlchemyV2 Nested Mutable Types"
 authors = ["Wonder <wonderbeyond@gmail.com>", "SS <sstorey@bma.bm>"]
 license = "MIT"
 repository = "https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable"
@@ -67,16 +78,6 @@ yapf = "*"
 pytest = "7.4.3"
 pytest-docker-service = "0.2.4"
 
-[tool.semantic_release]
-version_variable = [
-    "src_folder/__init__.py:__version__",
-    "pyproject.toml:version"
-]
-branch = "main"
-upload_to_pypi = false
-upload_to_release = true
-build_command = "pip install poetry && poetry build"
-
 [tool.black]
 preview = true
 skip-string-normalization = true
@@ -102,7 +103,7 @@ markers = [
     "integration: marks as front/backend test (deselect with '-m \"not integration\"')",
     "unit: marks as unit test (deselect with '-m \"not unit\"')",
     ]
-pythonpath = "sqlalchemy_nested_mutable"
+pythonpath = "sqlalchemyV2_nested_mutable"
 asyncio_mode = "auto"
 
 [tool.pyright]
@@ -116,3 +117,7 @@ reportMissingTypeStubs= true
 pythonVersion= "3.11"
 pythonPlatform= "Linux"
 stubPath = "src/stubs"
+
+[tool.poetry-git-version-plugin]
+version_format = '{version}+{commit_hash}'
+alpha_version_format = '{version}a{distance}+{commit_hash}'

@@ -9,8 +9,8 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Session
-from sqlalchemy_nested_mutable import MutablePydanticBaseModel
-from sqlalchemy_nested_mutable._compat import pydantic
+from sqlalchemyv2_nested_mutable import MutablePydanticBaseModel
+from sqlalchemyv2_nested_mutable._compat import pydantic
 
 
 class Base(DeclarativeBase):
