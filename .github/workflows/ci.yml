@@ -25,7 +25,6 @@ env:
   AZURE_ARTIFACT_ORG: BMA-DSAI
   AZURE_ARTIFACT_FEED: DSAI
   AZURE_ARTIFACTS_USERNAME: DSAI
-  AZURE_ARTIFACTS_PASSWORD: ${{ secrets.AZURE_ARTIFACT_TOKEN }}
   SRC_PATH: ./src/sqlalchemyv2_nested_mutable
   SRC_DISTRIBUTION_PATH: ./src/sqlalchemyv2_nested_mutable/dist/*
 
@@ -55,7 +54,9 @@ jobs:
         path: ./.venv
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project dependencies
-      run: poetry install
+      run: |
+        poetry config http-basic.DSAI $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
+        poetry install
     - name: Set path
       run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
     - name: Run the automated tests
@@ -108,7 +109,9 @@ jobs:
         path: ./.venv
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project dependencies
-      run: poetry install
+      run: |
+        poetry config http-basic.DSAI $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
+        poetry install
     - name: Set path
       run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
     - name: Install dotnet dsk
