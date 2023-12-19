@@ -123,10 +123,12 @@ jobs:
       run: |
         sudo apt-get install -y dotnet-sdk-8.0
     - name: Python Semantic Release
+      id: semantic_release
       uses: python-semantic-release/python-semantic-release@master
       with:
         directory: ${{ env.SRC_PATH }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Publish to Azure Artifacts
+      #if: ${{ steps.semantic_release.outputs.released }} == "true"
       run: |
         twine upload --repository-url https://pkgs.dev.azure.com/${{ env.AZURE_ARTIFACT_ORG }}/_packaging/${{ env.AZURE_ARTIFACT_FEED }}/pypi/upload ${{ env.SRC_DISTRIBUTION_PATH }}
