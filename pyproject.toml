@@ -14,6 +14,11 @@ keyring = "^24.3.0"
 artifacts-keyring = "^0.3.4"
 twine = "^4.0.2"
 
+
+[tool.poetry.group.DEV.dependencies]
+pytest-github-report = "^0.0.1"
+pytest-cov = "^4.1.0"
+
 [[tool.poetry.source]]
 name = "DSAI"
 url = "https://pkgs.dev.azure.com/BMA-DSAI/_packaging/DSAI/pypi/simple/"
