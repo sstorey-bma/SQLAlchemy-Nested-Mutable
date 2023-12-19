@@ -26,6 +26,7 @@ env:
   AZURE_ARTIFACT_FEED: DSAI
   AZURE_ARTIFACTS_USERNAME: DSAI
   SRC_PATH: ./
+  PACKAGE_PATH: ./src/sqlalchemyv2_nested_mutable
   SRC_DISTRIBUTION_PATH: ./dist/*
 
 jobs:
@@ -63,7 +64,7 @@ jobs:
       env:
         pytest_verbosity: ${{ env.PYTEST_VERBOSITY }}
       run: |
-        poetry run pytest --github-report --doctest-modules --cov=. --cov-report term-missing --cov-report=html --junitxml=pytest.xml | tee pytest-coverage.txt
+        poetry run pytest --github-report --doctest-modules --cov=$PACKAGE_PATH --cov-report term-missing --cov-report=html --junitxml=pytest.xml | tee pytest-coverage.txt
     - name: Pytest coverage comment
       id: coverageComment
       uses: MishaKav/pytest-coverage-comment@main
