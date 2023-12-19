@@ -62,40 +62,33 @@ class UserV3(Base):
 
 
 @pytest.fixture(scope="module", autouse=True)
-def _with_tables(session: Session):
-    Base.metadata.create_all(session.bind)  # type: ignore
-    yield
-    session.execute(sa.text("""
-    DROP TABLE user_account CASCADE;
-    DROP TABLE user_account_v2 CASCADE;
-    DROP TABLE user_account_v3 CASCADE;
-    """))
-    session.commit()
+def mapper():
+    return Base
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user1_1():
     return User(name="foo", aliases=["bar", "baz"])
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user1_2():
     return User(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"]])
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user1_3():
     return User(
         name="foo", schedule=[["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]]
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user2_1():
     return UserV2(name="foo", aliases=["bar", "baz"])
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user2_2():
     return UserV2(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"]])
 
@@ -186,7 +179,7 @@ def test_nested_mutable_list_schedule_mutate_pop(session: Session, user1_3: User
     session.commit()
 
     # Assert
-    assert u.schedule == [["breakfast", "launch"], ["training", "presentation"]]
+    assert u.schedule == [["meeting", "launch"], ["training", "presentation"]]
 
 
 def test_mutable_list_stored_as_jsonb(session: Session, user2_1: User):

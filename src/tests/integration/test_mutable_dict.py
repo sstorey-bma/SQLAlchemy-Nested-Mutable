@@ -22,17 +22,7 @@ class User(Base):
     addresses: Mapped[MutableDict] = mapped_column(MutableDict.as_mutable(JSONB()), default=MutableDict)
 
 
-@pytest.fixture(scope="module", autouse=True)
-def _with_tables(session):
-    Base.metadata.create_all(session.bind)
-    yield
-    session.execute(sa.text("""
-    DROP TABLE user_account CASCADE;
-    """))
-    session.commit()
-
-
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user1():
     return User(
         name="foo",
@@ -43,7 +33,7 @@ def user1():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def user2():
     return User(
         name="bar",
@@ -55,6 +45,11 @@ def user2():
             ],
         },
     )
+
+
+@pytest.fixture(scope="module", autouse=True)
+def mapper():
+    return Base
 
 
 def test_mutable_dict(session: Session, user1: User):
@@ -169,6 +164,7 @@ def test_mutable_dict_mixed_with_list_deep_changes(session: Session, user2: User
     u = user2
 
     # Act - Deep change across list and dict values
+    u.addresses["others"].append({"label": "secret1", "address": "790 Moon Street"})
     u.addresses["others"][1].update(address="791 Moon Street")
     session.commit()
 

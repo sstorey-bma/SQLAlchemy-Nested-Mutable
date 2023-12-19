@@ -1,4 +1,3 @@
-from functools import reduce
 from typing import List
 from typing import Optional
 
@@ -13,13 +12,6 @@ from sqlalchemy_nested_mutable import MutablePydanticBaseModel
 from sqlalchemy_nested_mutable import TrackedList
 from sqlalchemy_nested_mutable import TrackedPydanticBaseModel
 from sqlalchemy_nested_mutable._compat import pydantic
-
-
-def rgetattr(obj, attr, *args):
-    def _getattr(obj, attr):
-        return getattr(obj, attr, *args)
-
-    return reduce(_getattr, attr.split("."), obj)
 
 
 class Base(DeclarativeBase):
@@ -41,7 +33,12 @@ class Addresses(MutablePydanticBaseModel):
         super().__init__(**data)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="module", autouse=True)
+def mapper():
+    return Base
+
+
+@pytest.fixture(scope="function")
 def user1():
     return User(name="foo", addresses={"preferred": {"street": "bar", "city": "baz", "area": None}})
 
@@ -52,16 +49,6 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
     addresses: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSON()), nullable=True)
-
-
-@pytest.fixture(scope="module", autouse=True)
-def _with_tables(session: Session):
-    Base.metadata.create_all(session.bind)  # type: ignore
-    yield
-    session.execute(sa.text("""
-    DROP TABLE user_account CASCADE;
-    """))
-    session.commit()
 
 
 def test_mutable_pydantic_type(session: Session, user1: User):
@@ -129,11 +116,11 @@ def test_mutable_pydantic_type_deep_append(session: Session, user1: User):
 
     # Act - Append item
     assert u.addresses is not None
-    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar3", "city": "baz"}))
+    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar1", "city": "baz"}))
     session.commit()
 
     # Assert
-    assert u.addresses.home[0].model_dump(exclude_none=True) == {"street": "bar3", "city": "baz"}
+    assert u.addresses.home[0].model_dump(exclude_none=True) == {"street": "bar1", "city": "baz"}
     assert isinstance(u.addresses.home[0], TrackedPydanticBaseModel)
     assert isinstance(u.addresses.home[0], Addresses.AddressItem)
 
@@ -143,17 +130,19 @@ def test_mutable_pydantic_type_deep_pop(session: Session, user1: User):
     # Arrange
     u = user1
     assert u.addresses is not None
+    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar1", "city": "baz"}))
+    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar2", "city": "baz"}))
     u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar3", "city": "baz"}))
-    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar4", "city": "baz"}))
-    u.addresses.home.append(Addresses.AddressItem.model_validate({"street": "bar5", "city": "baz"}))
     session.add(u)
     session.commit()
 
-    # Act - Append item
-    u.addresses.home.pop()
+    # Act - Pop last item from list
+    u.addresses.home.pop(2)
     session.commit()
 
     # Assert
-    assert u.addresses.home[0].model_dump(exclude_none=True) == {"street": "bar3", "city": "baz"}
-    assert u.addresses.home[1].model_dump(exclude_none=True) == {"street": "bar4", "city": "baz"}
+    assert u.addresses.preferred is not None
+    assert u.addresses.preferred.model_dump(exclude_none=True) == {"street": "bar", "city": "baz"}
+    assert u.addresses.home[0].model_dump(exclude_none=True) == {"street": "bar1", "city": "baz"}
+    assert u.addresses.home[1].model_dump(exclude_none=True) == {"street": "bar2", "city": "baz"}
     assert len(u.addresses.home) == 2

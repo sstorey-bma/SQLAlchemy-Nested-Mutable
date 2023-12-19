@@ -24,13 +24,8 @@ class User(Base):
 
 
 @pytest.fixture(scope="module", autouse=True)
-def _with_tables(session: Session):
-    assert session is not None
-    assert session.bind is not None
-    Base.metadata.create_all(session.bind)
-    yield
-    session.execute(sa.text("DROP TABLE user_account CASCADE;"))
-    session.commit()
+def mapper():
+    return Base
 
 
 def test_sa_array_not_mutable(session: Session):
