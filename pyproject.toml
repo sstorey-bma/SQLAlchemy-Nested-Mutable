@@ -40,6 +40,7 @@ legacy_tox_ini = """
 
 [tool.poetry]
 name = "sqlalchemyV2-nested-mutable"
+version = "0.0.1"
 readme = "README.md"
 description = "SQLAlchemyV2 Nested Mutable Types"
 authors = ["Wonder <wonderbeyond@gmail.com>", "SS <sstorey@bma.bm>"]
@@ -118,6 +119,12 @@ pythonVersion= "3.11"
 pythonPlatform= "Linux"
 stubPath = "src/stubs"
 
-[tool.poetry-git-version-plugin]
-version_format = '{version}+{commit_hash}'
-alpha_version_format = '{version}a{distance}+{commit_hash}'
+[tool.semantic_release]
+version_variable = [
+    "src/sqlalchemyv2_nested_mutable/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+branch = "main"
+upload_to_pypi = false
+upload_to_release = true
+build_command = "pip install poetry && poetry build"

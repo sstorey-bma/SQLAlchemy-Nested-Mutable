@@ -19,12 +19,16 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   PYTEST_VERBOSITY: "2"
+  AZ_ARTIFACT_ORG: BMA-DSAI
+  AZ_ARTIFACT_FEED: DSAI
+  SRC_PATH: ./src/sqlalchemyv2_nested_mutable
+  SRC_DISTRIBUTION_PATH: ./src/sqlalchemyv2_nested_mutable/dist/*
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
@@ -66,3 +70,48 @@ jobs:
         set -o pipefail
         echo '### Coverage report' >> $GITHUB_STEP_SUMMARY
         echo '${{ steps.coverageComment.outputs.coverageHtml }}' >> $GITHUB_STEP_SUMMARY
+
+  release:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    concurrency: release
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        architecture: x64
+    - name: Install Python Poetry
+      uses: abatilo/actions-poetry@v2.1.0
+      with:
+        poetry-version: 1.7.1
+    - name: View poetry version
+      run: poetry --version
+    - name: Setup a local virtual environment (if no poetry.toml file)
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
+    - uses: actions/cache@v3
+      name: Define a cache for the virtual environment
+      with:
+        path: ./.venv
+        key: venv-${{ hashFiles('poetry.lock') }}
+    - name: Install the project dependencies
+      run: poetry install
+    - name: Set path
+      run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+    - name: Install dotnet dsk
+      run: |
+        sudo apt-get install -y dotnet-sdk-8.0
+    - name: Python Semantic Release
+      uses: python-semantic-release/python-semantic-release@master
+      with:
+        directory: ${{ env.SRC_PATH }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish to Azure Artifacts
+      run: |
+        twine upload --repository-url https://pkgs.dev.azure.com/${{ env.AZ_ARTIFACT_ORG }}/_packaging/${{ env.AZ_ARTIFACT_FEED }}/pypi/upload ${{ env.SRC_DISTRIBUTION_PATH }}
