@@ -89,6 +89,10 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+      # You must set fetch-depth to 0 when using actions/checkout@v3, since Python Semantic Release needs
+      # access to the full history to determine whether a release should be made.
+      with:
+        fetch-depth: 0
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
