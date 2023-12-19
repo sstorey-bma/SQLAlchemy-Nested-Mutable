@@ -25,8 +25,8 @@ env:
   AZURE_ARTIFACT_ORG: BMA-DSAI
   AZURE_ARTIFACT_FEED: DSAI
   AZURE_ARTIFACTS_USERNAME: DSAI
-  SRC_PATH: ./src/sqlalchemyv2_nested_mutable
-  SRC_DISTRIBUTION_PATH: ./src/sqlalchemyv2_nested_mutable/dist/*
+  SRC_PATH: ./
+  SRC_DISTRIBUTION_PATH: ./dist/*
 
 jobs:
   ci:
