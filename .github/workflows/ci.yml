@@ -9,6 +9,9 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
 
 permissions:
       id-token: write
@@ -19,14 +22,17 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   PYTEST_VERBOSITY: "2"
-  AZ_ARTIFACT_ORG: BMA-DSAI
-  AZ_ARTIFACT_FEED: DSAI
+  AZURE_ARTIFACT_ORG: BMA-DSAI
+  AZURE_ARTIFACT_FEED: DSAI
+  AZURE_ARTIFACTS_USERNAME: DSAI
+  AZURE_ARTIFACTS_PASSWORD: ${{ secrets.AZURE_ARTIFACT_TOKEN }}
   SRC_PATH: ./src/sqlalchemyv2_nested_mutable
   SRC_DISTRIBUTION_PATH: ./src/sqlalchemyv2_nested_mutable/dist/*
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    environment: DEVELOPMENT
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -76,6 +82,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     concurrency: release
+    environment: DEVELOPMENT
     permissions:
       id-token: write
       contents: write
@@ -114,4 +121,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Publish to Azure Artifacts
       run: |
-        twine upload --repository-url https://pkgs.dev.azure.com/${{ env.AZ_ARTIFACT_ORG }}/_packaging/${{ env.AZ_ARTIFACT_FEED }}/pypi/upload ${{ env.SRC_DISTRIBUTION_PATH }}
+        twine upload --repository-url https://pkgs.dev.azure.com/${{ env.AZURE_ARTIFACT_ORG }}/_packaging/${{ env.AZURE_ARTIFACT_FEED }}/pypi/upload ${{ env.SRC_DISTRIBUTION_PATH }}
