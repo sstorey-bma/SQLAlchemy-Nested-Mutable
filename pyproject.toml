@@ -23,11 +23,6 @@ url = "https://pkgs.dev.azure.com/BMA-DSAI/_packaging/DSAI/pypi/simple/"
 priority = "primary"
 
 [[tool.poetry.source]]
-name = "DSAI"
-url = "https://pkgs.dev.azure.com/BMA-DSAI/_packaging/DSAI/pypi/simple/"
-priority = "primary"
-
-[[tool.poetry.source]]
 name = "PyPI"
 priority = "supplemental"
 
