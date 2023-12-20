@@ -58,6 +58,9 @@ jobs:
       run: |
         poetry config virtualenvs.create true --local
         poetry config virtualenvs.in-project true --local
+    - name: Setup poetry feed to Azure Artifacts
+      run: |
+        poetry config http-basic.DSAI $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
     - uses: actions/cache@v3
       name: Define a cache for the virtual environment
       with:
@@ -65,11 +68,10 @@ jobs:
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project dependencies
       run: |
-        poetry config http-basic.DSAI $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
         poetry install
     - name: Set path
       run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
-    - name: Install dotnet dsk
+    - name: Install dotnet SDK
       run: |
         sudo apt-get install -y dotnet-sdk-8.0
     - name: Python Semantic Release
