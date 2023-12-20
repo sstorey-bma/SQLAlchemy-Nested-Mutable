@@ -9,6 +9,9 @@ on:
     inputs:
       environment:
         type: environment
+      force_release:
+        type: boolean
+        description: True or False
 
 permissions:
       id-token: write
@@ -28,7 +31,7 @@ env:
 
 jobs:
   release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):')
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):') || ${{ github.event.inputs.force_release }} == True)
     runs-on: ubuntu-latest
     concurrency: release
     environment: DEVELOPMENT
