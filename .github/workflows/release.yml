@@ -1,15 +1,14 @@
 name: Build & Release Package
 on:
-  push:
+  pull_request:
     branches:
       - main
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
-      force_release:
+      force_publish:
         type: boolean
-        description: Force Release?
+        description: Force Publish To Azure Artifacts?
+        default: false
 
 permissions:
       id-token: write
@@ -26,7 +25,7 @@ env:
 
 jobs:
   release:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):') || ${{ github.event.inputs.force_release }} == True)
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):') || ${{ github.event.inputs.force_publish }} == true)
     runs-on: ubuntu-latest
     concurrency: release
     permissions:
@@ -78,4 +77,6 @@ jobs:
     - name: Publish to Azure Artifacts
       if: ${{ steps.semantic_release.outputs.released }} == true || ${{ github.event.inputs.force_release }} == true
       run: |
+        echo ${{ steps.semantic_release.outputs.released }}
+        echo ${{ github.event.inputs.force_publish }}
         poetry publish --build -r ${{ vars.AZURE_ARTIFACT_FEED }}
