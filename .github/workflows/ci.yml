@@ -7,9 +7,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      environment:
-        type: environment
 
 env:
   PYTHON_VERSION: "3.11"
@@ -18,7 +15,6 @@ env:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    environment: DEVELOPMENT
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -42,7 +38,7 @@ jobs:
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project dependencies
       run: |
-        poetry config http-basic.DSAI $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
+        poetry config http-basic.${{ vars.AZURE_ARTIFACT_ORG }} ${{ vars.AZURE_ARTIFACTS_USERNAME }} ${{ secrets.AZURE_ARTIFACT_TOKEN }}
         poetry install
     - name: Set path
       run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
@@ -57,7 +53,6 @@ jobs:
       with:
         pytest-coverage-path: pytest-coverage.txt
         junitxml-path: pytest.xml
-      # add content to GitHub summary (&& github.event_name == 'pull_request')
     - name: Pytest coverage GitHub summary
       if: ${{ success() }}
       run: |

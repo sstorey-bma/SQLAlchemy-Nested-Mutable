@@ -1,4 +1,4 @@
-name: Release
+name: Build & Release Package
 on:
   push:
     branches:
@@ -7,8 +7,6 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
-      environment:
-        type: environment
       force_release:
         type: boolean
         description: Force Release?
@@ -22,9 +20,6 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   PYTEST_VERBOSITY: "2"
-  AZURE_ARTIFACT_ORG: BMA-DSAI
-  AZURE_ARTIFACT_FEED: DSAI
-  AZURE_ARTIFACTS_USERNAME: DSAI
   SRC_PATH: ./
   PACKAGE_PATH: ./src/sqlalchemyv2_nested_mutable
   SRC_DISTRIBUTION_PATH: ./dist/*
@@ -34,7 +29,6 @@ jobs:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):') || ${{ github.event.inputs.force_release }} == True)
     runs-on: ubuntu-latest
     concurrency: release
-    environment: DEVELOPMENT
     permissions:
       id-token: write
       contents: write
@@ -60,8 +54,8 @@ jobs:
         poetry config virtualenvs.in-project true --local
     - name: Setup poetry url feeds for sources/repositories for Azure Artifacts (download & upload)
       run: |
-        poetry config http-basic.$AZURE_ARTIFACT_FEED $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
-        poetry config repositories.$AZURE_ARTIFACT_FEED https://pkgs.dev.azure.com/$AZURE_ARTIFACT_ORG/_packaging/$AZURE_ARTIFACT_FEED/pypi/upload
+        poetry config http-basic.${{ vars.AZURE_ARTIFACT_FEED }} ${{ vars.AZURE_ARTIFACTS_USERNAME }} ${{ secrets.AZURE_ARTIFACT_TOKEN }}
+        poetry config repositories.${{ vars.AZURE_ARTIFACT_FEED }} https://pkgs.dev.azure.com/${{ vars.AZURE_ARTIFACT_ORG }}/_packaging/${{ vars.AZURE_ARTIFACT_FEED }}/pypi/upload
     - uses: actions/cache@v3
       name: Define a cache for the virtual environment
       with:
@@ -82,6 +76,6 @@ jobs:
         directory: ${{ env.SRC_PATH }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Publish to Azure Artifacts
-      #if: ${{ steps.semantic_release.outputs.released }} == "true"
+      if: ${{ steps.semantic_release.outputs.released }} == true || ${{ github.event.inputs.force_release }} == true
       run: |
-        poetry publish --build -r $AZURE_ARTIFACT_FEED
+        poetry publish --build -r ${{ vars.AZURE_ARTIFACT_FEED }}
