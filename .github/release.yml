@@ -1,0 +1,82 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+
+permissions:
+      id-token: write
+      issues: write
+      pull-requests: write
+      contents: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  PYTEST_VERBOSITY: "2"
+  AZURE_ARTIFACT_ORG: BMA-DSAI
+  AZURE_ARTIFACT_FEED: DSAI
+  AZURE_ARTIFACTS_USERNAME: DSAI
+  SRC_PATH: ./
+  PACKAGE_PATH: ./src/sqlalchemyv2_nested_mutable
+  SRC_DISTRIBUTION_PATH: ./dist/*
+
+jobs:
+  release:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    concurrency: release
+    environment: DEVELOPMENT
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+      # You must set fetch-depth to 0 when using actions/checkout@v3, since Python Semantic Release needs
+      # access to the full history to determine whether a release should be made.
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        architecture: x64
+    - name: Install Python Poetry
+      uses: abatilo/actions-poetry@v2.1.0
+      with:
+        poetry-version: 1.7.1
+    - name: View poetry version
+      run: poetry --version
+    - name: Setup a local virtual environment (if no poetry.toml file)
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
+    - uses: actions/cache@v3
+      name: Define a cache for the virtual environment
+      with:
+        path: ./.venv
+        key: venv-${{ hashFiles('poetry.lock') }}
+    - name: Install the project dependencies
+      run: |
+        poetry config http-basic.DSAI $AZURE_ARTIFACTS_USERNAME ${{ secrets.AZURE_ARTIFACT_TOKEN }}
+        poetry install
+    - name: Set path
+      run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+    - name: Install dotnet dsk
+      run: |
+        sudo apt-get install -y dotnet-sdk-8.0
+    - name: Python Semantic Release
+      id: semantic_release
+      uses: python-semantic-release/python-semantic-release@master
+      with:
+        directory: ${{ env.SRC_PATH }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish to Azure Artifacts
+      #if: ${{ steps.semantic_release.outputs.released }} == "true"
+      run: |
+        twine upload --repository-url https://pkgs.dev.azure.com/${{ env.AZURE_ARTIFACT_ORG }}/_packaging/${{ env.AZURE_ARTIFACT_FEED }}/pypi/upload ${{ env.SRC_DISTRIBUTION_PATH }}
