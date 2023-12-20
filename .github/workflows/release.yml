@@ -78,4 +78,4 @@ jobs:
     - name: Publish to Azure Artifacts
       #if: ${{ steps.semantic_release.outputs.released }} == "true"
       run: |
-        twine upload --repository-url https://pkgs.dev.azure.com/${{ env.AZURE_ARTIFACT_ORG }}/_packaging/${{ env.AZURE_ARTIFACT_FEED }}/pypi/upload ${{ env.SRC_DISTRIBUTION_PATH }}
+        poetry publish --build -r $AZURE_ARTIFACT_FEED
