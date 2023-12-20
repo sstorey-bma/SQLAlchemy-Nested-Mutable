@@ -1,6 +1,6 @@
 [tool.poetry.group.test.dependencies]
 pytest = "^7.3.1"
-pytest-asyncio = "^0.21.0"
+pytest-asyncio = "^0.23.2"
 pytest-docker-service = "^0.2.4"
 tox = "^4.6.0"
 
