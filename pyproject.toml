@@ -6,7 +6,7 @@ tox = "^4.6.0"
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0"
-black = "^23.3.0"
+black = "^24.3.0"
 ruff = "^0.0.267"
 pre-commit = "^3.6.0"
 pyright = "^1.1.339"
